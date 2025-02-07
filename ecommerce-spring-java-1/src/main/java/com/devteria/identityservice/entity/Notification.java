@@ -3,6 +3,7 @@ package com.devteria.identityservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Getter
@@ -11,7 +12,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Notification extends AbstractEntity{
+@ToString
+public class Notification extends AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

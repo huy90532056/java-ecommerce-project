@@ -1,5 +1,7 @@
 package com.devteria.identityservice.controller;
 
+import com.devteria.identityservice.configuration.MQConfig;
+import com.devteria.identityservice.dto.custom.CustomMessage;
 import com.devteria.identityservice.dto.request.ApiResponse;
 import com.devteria.identityservice.dto.request.OrderCreationRequest;
 import com.devteria.identityservice.dto.request.OrderUpdateRequest;
@@ -8,9 +10,13 @@ import com.devteria.identityservice.service.OrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/orders")
