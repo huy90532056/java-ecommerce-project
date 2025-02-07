@@ -11,6 +11,9 @@ import com.devteria.identityservice.repository.CategoryRepository;
 import com.devteria.identityservice.repository.ProductRepository;
 import com.devteria.identityservice.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,20 +29,28 @@ public class ProductService {
     @Autowired
     private TagRepository tagRepository;
 
+    // Tạo mới Product
+    @CacheEvict(value = "products", allEntries = true) // Xóa cache của danh sách sản phẩm khi tạo mới
     public Product createProduct(ProductCreationRequest productRequest) {
         Product product = productMapper.toProduct(productRequest);
         return productRepository.save(product);
     }
 
+    // Lấy danh sách tất cả sản phẩm
+    @Cacheable(value = "products") // Cache toàn bộ danh sách sản phẩm
     public List<Product> getProducts() {
         return productRepository.findAll();
     }
 
+    // Lấy thông tin chi tiết của một sản phẩm
+    @Cacheable(value = "product", key = "#id") // Cache thông tin sản phẩm theo ID
     public ProductResponse getProduct(Long id) {
         return productMapper.toProductResponse(productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product Not Found!")));
     }
 
+    // Cập nhật thông tin sản phẩm
+    @CachePut(value = "product", key = "#productId") // Cập nhật lại cache cho sản phẩm đã được chỉnh sửa
     public ProductResponse updateProduct(Long productId, ProductUpdateRequest productUpdateRequest) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product Not Found!"));
@@ -49,6 +60,8 @@ public class ProductService {
         return productMapper.toProductResponse(productRepository.save(product));
     }
 
+    // Thêm category vào Product
+    @CacheEvict(value = "product", key = "#productId") // Xóa cache cũ vì product đã thay đổi
     public Product addCategoryToProduct(Long productId, String categoryId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product Not Found!"));
@@ -60,22 +73,22 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    // Thêm tag vào Product
+    @CacheEvict(value = "product", key = "#productId") // Xóa cache cũ vì product đã thay đổi
     public Product addTagToProduct(Long productId, String tagId) {
-        // Tìm kiếm sản phẩm bằng productId
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product Not Found!"));
 
-        // Tìm kiếm tag bằng tagId
         Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new RuntimeException("Tag Not Found!"));
 
-        // Thêm tag vào danh sách tags của sản phẩm
         product.getTags().add(tag);
 
-        // Lưu lại sản phẩm sau khi thêm tag
         return productRepository.save(product);
     }
 
+    // Xóa Product
+    @CacheEvict(value = {"product", "products"}, key = "#productId", allEntries = true) // Xóa cache liên quan
     public void deleteProduct(Long productId) {
         productRepository.deleteById(productId);
     }

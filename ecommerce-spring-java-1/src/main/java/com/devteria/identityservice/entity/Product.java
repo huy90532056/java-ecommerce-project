@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Getter
@@ -12,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Product {
+public class Product implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productId;
@@ -29,10 +30,12 @@ public class Product {
     private Double productWeight;
     private Boolean published;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Review> reviews;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
             name = "product_category",
             joinColumns = @JoinColumn(name = "product_id"),
@@ -45,6 +48,7 @@ public class Product {
     private List<ProductVariant> variants;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
             name = "product_tag",
             joinColumns = @JoinColumn(name = "product_id"),
