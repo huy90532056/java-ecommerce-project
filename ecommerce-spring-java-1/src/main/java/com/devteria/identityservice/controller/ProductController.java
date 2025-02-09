@@ -3,10 +3,12 @@ package com.devteria.identityservice.controller;
 import com.devteria.identityservice.dto.request.ApiResponse;
 import com.devteria.identityservice.dto.request.ProductCreationRequest;
 import com.devteria.identityservice.dto.request.ProductUpdateRequest;
+import com.devteria.identityservice.dto.response.PageResponse;
 import com.devteria.identityservice.dto.response.ProductResponse;
 import com.devteria.identityservice.entity.Product;
 import com.devteria.identityservice.service.ProductService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,4 +68,49 @@ public class ProductController {
         return apiResponse;
     }
 
+    @GetMapping("/list")
+    public ApiResponse<List<ProductResponse>> getAllProductsPaging(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @Min(5) @RequestParam(defaultValue = "10", required = false) int pageSize
+    ) {
+        ApiResponse<List<ProductResponse>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(productService.getAllProductsPaging(pageNo, pageSize));
+        return apiResponse;
+    }
+
+    @GetMapping("/list/sort")
+    public ApiResponse<List<ProductResponse>> getAllProductsPagingSort(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @Min(5) @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(required = false) String sortBy
+    ) {
+        ApiResponse<List<ProductResponse>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(productService.getAllProductsPagingSort(pageNo, pageSize, sortBy));
+        return apiResponse;
+    }
+
+    @GetMapping("/list/sort/multiple")
+    public ApiResponse<PageResponse<?>> getAllProductsPagingSortByMultipleCategory(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @Min(5) @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(required = false) String... sort
+    ) {
+        ApiResponse<PageResponse<?>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(productService.getAllProductsPagingSortByMultipleCategory(pageNo, pageSize, sort));
+        return apiResponse;
+    }
+
+    @GetMapping("/list/sort/multiple/search")
+    public ApiResponse<PageResponse<?>> getAllProductsPagingSortByMultipleCategorySearch(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @Min(5) @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String sortBy
+    ) {
+        ApiResponse<PageResponse<?>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(productService.getAllProductsPagingSortByMultipleCategorySearch(pageNo, pageSize,
+                search, sortBy));
+        return apiResponse;
+
+    }
 }
